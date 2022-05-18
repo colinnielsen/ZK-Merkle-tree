@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "test": "npx hardhat test",
-    "build": "bash ./scripts/compile.sh && node ./scripts/bump-solidity.ts"
+    "build": "bash ./scripts/compile.sh && node ./scripts/bump-solidity.js"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",

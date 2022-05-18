@@ -2,8 +2,8 @@
 
 cd circuits
 
-if [ -f ./powers_of_tau__10.ptau ]; then
-
+if [ -f ./build/powers_of_tau__10.ptau ]; then
+    echo  ""
 else
     echo 'Downloading powers_of_tau__10.ptau'
     curl https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_10.ptau -o powers_of_tau__10.ptau
@@ -25,6 +25,6 @@ snarkjs zkey contribute commitment/MerkleTree_0000.zkey commitment/MerkleTree__f
 snarkjs zkey export verificationkey commitment/MerkleTree__final.zkey commitment/verification_key.json
 
 # generate solidity contract to verify the proof
-snarkjs zkey export solidityverifier commitment/MerkleTree__final.zkey ../contracts/ProofVerifier.sol
+snarkjs zkey export solidityverifier commitment/MerkleTree__final.zkey ../contracts/MerkleProofVerifier.sol
 
 cd ..

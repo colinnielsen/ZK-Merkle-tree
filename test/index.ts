@@ -1,30 +1,8 @@
-//@ts-ignore
-import { poseidonContract } from "circomlibjs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-//@ts-ignore
-import { groth16 } from "snarkjs";
 import { Contract } from "ethers";
-
-function unstringifyBigInts(o: any): any {
-  if (typeof o == "string" && /^[0-9]+$/.test(o)) {
-    return BigInt(o);
-  } else if (typeof o == "string" && /^0x[0-9a-fA-F]+$/.test(o)) {
-    return BigInt(o);
-  } else if (Array.isArray(o)) {
-    return o.map(unstringifyBigInts);
-  } else if (typeof o == "object") {
-    if (o === null) return null;
-    const res: Record<string, BigInt> = {};
-    const keys = Object.keys(o);
-    keys.forEach((k) => {
-      res[k] = unstringifyBigInts(o[k]);
-    });
-    return res;
-  } else {
-    return o;
-  }
-}
+const { poseidonContract } = require("circomlibjs");
+const { groth16 } = require("snarkjs");
 
 describe("MerkleTree", function () {
   let merkleTree: Contract;
@@ -53,36 +31,27 @@ describe("MerkleTree", function () {
     const node9 = (await merkleTree.hashes(9)).toString();
     const node13 = (await merkleTree.hashes(13)).toString();
 
-    const Input = {
+    const inputSignals = {
       leaf: "1",
       path_elements: ["2", node9, node13],
       path_index: ["0", "0", "0"],
     };
+
     const { proof, publicSignals } = await groth16.fullProve(
-      Input,
+      inputSignals,
       "circuits/build/MerkleTree_js/MerkleTree.wasm",
       "circuits/commitment/MerkleTree__final.zkey"
     );
 
-    const editedPublicSignals = unstringifyBigInts(publicSignals);
-    const editedProof = unstringifyBigInts(proof);
-    const calldata = await groth16.exportSolidityCallData(
-      editedProof,
-      editedPublicSignals
-    );
+    const [a, b, c] = Object.values(proof)
+      .filter((x): x is string[] => Array.isArray(x))
+      .map((tuple) => tuple.slice(0, -1))
+      .map(([a, b]) =>
+        Array.isArray(a) && Array.isArray(b)
+          ? [a.reverse(), b.reverse()]
+          : [a, b]
+      );
 
-    const argv = calldata
-      .replace(/["[\]\s]/g, "")
-      .split(",")
-      .map((x: string) => BigInt(x).toString());
-    const a = [argv[0], argv[1]];
-    const b = [
-      [argv[2], argv[3]],
-      [argv[4], argv[5]],
-    ];
-    const c = [argv[6], argv[7]];
-    const input = argv.slice(8);
-
-    expect(await merkleTree.verify(a, b, c, input)).to.be.true;
+    expect(await merkleTree.verify(a, b, c, publicSignals)).to.be.true;
   });
 });

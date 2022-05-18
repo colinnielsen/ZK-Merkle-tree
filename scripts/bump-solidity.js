@@ -1,7 +1,7 @@
-import fs from "fs";
+const fs = require("fs");
 const solidityRegex = /pragma solidity \^\d+\.\d+\.\d+/;
 
-let content = fs.readFileSync("./contracts/verifier.sol", {
+let content = fs.readFileSync("./contracts/MerkleProofVerifier.sol", {
   encoding: "utf-8",
 });
 let bumped = content.replace(solidityRegex, "pragma solidity ^0.8.0");
