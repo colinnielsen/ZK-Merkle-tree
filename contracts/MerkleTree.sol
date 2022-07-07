@@ -20,7 +20,8 @@ contract MerkleTree is Verifier {
     function insertLeaf(uint256 hashedLeaf) public returns (uint256) {
         hashes[index] = hashedLeaf;
         index++;
-        return updateTree();
+        root = updateTree();
+        return root;
     }
 
     function verify(
@@ -29,7 +30,7 @@ contract MerkleTree is Verifier {
         uint256[2] memory c,
         uint256[1] memory input
     ) public view returns (bool) {
-        return verifyProof(a, b, c, input);
+        return verifyProof(a, b, c, input) && input[0] == root;
     }
 
     /// @notice updates the tree in the `hash` array
