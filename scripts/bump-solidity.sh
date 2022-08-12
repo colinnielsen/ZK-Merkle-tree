@@ -1,0 +1,1 @@
+sed -i "" "/pragma/ s/0.6.11/0.8.0/" contracts/*.sol
